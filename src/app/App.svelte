@@ -10,6 +10,10 @@
     location.search.includes("state=")
   );
 
+  /**
+   * Performs in-app navigation by updating the browser history and local route state.
+   * Also clears callback mode so normal route rendering can resume.
+   */
   function navigate(to: string) {
     history.pushState({}, "", to);
     path = to;
@@ -25,6 +29,9 @@
   let handle = $state<string | null>(null);
   let avatar = $state<string | null>(null);
 
+  /**
+   * Applies a successful OAuth result to local user state and returns the app to the home route.
+   */
   function onAuthSuccess(result: AuthResult) {
     console.log("[onAuthSuccess] result:", result);
     console.log("[onAuthSuccess] did:", result.did);
@@ -38,6 +45,10 @@
     console.log("[onAuthSuccess] navigated to /, path is now:", path);
   }
 
+  /**
+   * Signs out the active DID session if available, then clears local profile/session state.
+   * Sign-out errors are intentionally ignored to keep this action best-effort.
+   */
   async function signOut() {
     const { getOAuthClient } = await import("../lib/oauth");
     if (!did) return;

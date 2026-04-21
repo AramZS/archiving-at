@@ -9,6 +9,10 @@
   let error = $state<string | null>(null);
   let loading = $state(false);
 
+  /**
+   * Handles login form submission by starting the OAuth sign-in redirect flow.
+   * Updates local UI state for loading/error and normalizes non-Error failures.
+   */
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     error = null;
