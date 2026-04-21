@@ -9,6 +9,14 @@
   let error = $state<string | null>(null);
   let loading = $state(false);
 
+  // Request base ATProto access plus explicit write transitions.
+  const oauthScope = [
+    "atproto",
+    "transition:com.atproto.repo.applyWrites",
+    "transition:com.atproto.repo.createRecord",
+    "transition:com.atproto.repo.uploadBlob",
+  ].join(" ");
+
   /**
    * Handles login form submission by starting the OAuth sign-in redirect flow.
    * Updates local UI state for loading/error and normalizes non-Error failures.
@@ -21,7 +29,9 @@
     try {
       const { getOAuthClient } = await import("../../../lib/oauth");
       // signIn redirects the browser — promise only rejects on cancel/back
-      await getOAuthClient().signIn(handle.trim());
+      await getOAuthClient().signIn(handle.trim(), {
+        scope: oauthScope,
+      });
     } catch (err) {
       error =
         err instanceof Error
