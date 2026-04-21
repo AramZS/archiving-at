@@ -14,16 +14,33 @@ let _client: BrowserOAuthClient | null = null;
 export function getOAuthClient(): BrowserOAuthClient {
   if (_client) return _client;
 
-  const isLoopback =
-    location.hostname === "127.0.0.1" || location.hostname === "[::1]";
+  const configuredClientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
+  const redirectUri = `${location.origin}/auth/callback`;
 
   _client = new BrowserOAuthClient({
     handleResolver:
       (import.meta.env.VITE_HANDLE_RESOLVER as string | undefined) ??
       "https://bsky.social",
-    clientMetadata: isLoopback
-      ? undefined
-      : (import.meta.env.VITE_CLIENT_ID as string),
+    // Burn metadata in when configured; otherwise use loopback defaults for local dev.
+    clientMetadata: configuredClientId
+      ? {
+          client_id: configuredClientId,
+          client_name: "Archiver's ATmosphere",
+          client_uri: location.origin,
+          redirect_uris: [redirectUri],
+          scope: [
+            "atproto",
+            "transition:com.atproto.repo.applyWrites",
+            "transition:com.atproto.repo.createRecord",
+            "transition:com.atproto.repo.uploadBlob",
+          ].join(" "),
+          grant_types: ["authorization_code", "refresh_token"],
+          response_types: ["code"],
+          token_endpoint_auth_method: "none",
+          application_type: "web",
+          dpop_bound_access_tokens: true,
+        }
+      : undefined,
   });
 
   return _client;

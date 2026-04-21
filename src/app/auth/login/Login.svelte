@@ -8,14 +8,17 @@
   let handle = $state("");
   let error = $state<string | null>(null);
   let loading = $state(false);
+  const hasCustomClientMetadata = Boolean(import.meta.env.VITE_CLIENT_ID);
 
   // Request base ATProto access plus explicit write transitions.
-  const oauthScope = [
-    "atproto",
-    "transition:com.atproto.repo.applyWrites",
-    "transition:com.atproto.repo.createRecord",
-    "transition:com.atproto.repo.uploadBlob",
-  ].join(" ");
+  const oauthScope = hasCustomClientMetadata
+    ? [
+        "atproto",
+        "transition:com.atproto.repo.applyWrites",
+        "transition:com.atproto.repo.createRecord",
+        "transition:com.atproto.repo.uploadBlob",
+      ].join(" ")
+    : "atproto";
 
   /**
    * Handles login form submission by starting the OAuth sign-in redirect flow.
