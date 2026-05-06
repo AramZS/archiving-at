@@ -13,11 +13,15 @@ let _client: Promise<BrowserOAuthClient> | null = null;
 
 const REMOTE_CLIENT_ID = "https://archiving.at/.well-known/oauth-client-metadata.json";
 
+function isArchivingDomain(hostname: string): boolean {
+  return hostname === "archiving.at" || hostname.endsWith(".archiving.at");
+}
+
 function getConfiguredClientId(): string | undefined {
   const clientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
 
   if (clientId) return clientId;
-  if (location.hostname === "archiving.at") return REMOTE_CLIENT_ID;
+  if (isArchivingDomain(location.hostname)) return REMOTE_CLIENT_ID;
 
   return undefined;
 }
