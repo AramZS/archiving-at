@@ -83,6 +83,14 @@
         <p class="handle">@{handle}</p>
       {/if}
       <p class="did"><code>{did}</code></p>
+      <div class="user-summary">
+        {#if avatar}
+          <img class="summary-avatar" src={avatar} alt="{displayName ?? handle}'s avatar" />
+        {/if}
+        {#if handle}
+          <p class="summary-handle">@{handle}</p>
+        {/if}
+      </div>
       <button onclick={signOut}>Sign out</button>
     </div>
   </main>
@@ -142,6 +150,27 @@
 
   code {
     font-family: ui-monospace, monospace;
+  }
+
+  .user-summary {
+    margin: 1.5rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .summary-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-handle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
   }
 
   button {

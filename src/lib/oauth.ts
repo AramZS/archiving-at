@@ -54,7 +54,7 @@ export function hasWriteScopeClient(): boolean {
   return enabled;
 }
 
-export const WRITE_SCOPE = "atproto blob:application/zip blob:application/warc repo:test.record.activity";
+export const WRITE_SCOPE = "atproto blob:application/zip blob:application/warc repo:test.record.activity repo:test.foo.bar?action=create&action=update rpc:app.bsky.actor.getProfile?aud=did%3Aweb%3Aapi.bsky.app%23bsky_appview";
 
 export function getOAuthClient(): Promise<BrowserOAuthClient> {
   if (_client) {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+  import { getUserProfile } from "../../../lib/getBskyData";
 
   export type AuthResult = {
     did: string;
@@ -28,16 +29,7 @@
     }
 
     const { session } = result;
-
-    const { Agent } = await import("@atproto/api");
-    const agent = new Agent(session);
-    let profile: ProfileViewDetailed | null = null;
-    try {
-      const res = await agent.getProfile({ actor: session.sub });
-      profile = res.data;
-    } catch (err) {
-      console.warn("[Callback] profile fetch failed:", err);
-    }
+    const profile = await getUserProfile(session);
 
     onSuccess({ did: session.sub, profile });
   }
