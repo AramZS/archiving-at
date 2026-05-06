@@ -56,9 +56,7 @@ export function hasWriteScopeClient(): boolean {
 
 export const WRITE_SCOPE = [
   "atproto",
-  "transition:com.atproto.repo.applyWrites",
-  "transition:com.atproto.repo.createRecord",
-  "transition:com.atproto.repo.uploadBlob",
+  "repo:test.record.activity?action=create",
 ].join(" ");
 
 export function getOAuthClient(): Promise<BrowserOAuthClient> {
