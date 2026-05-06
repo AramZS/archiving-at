@@ -25,8 +25,9 @@
 
     try {
       const { getOAuthClient } = await import("../../../lib/oauth");
+      const client = await getOAuthClient();
       // signIn redirects the browser — promise only rejects on cancel/back
-      await getOAuthClient().signIn(handle.trim(), {
+      await client.signIn(handle.trim(), {
         scope: oauthScope,
       });
     } catch (err) {

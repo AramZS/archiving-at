@@ -53,7 +53,8 @@
     const { getOAuthClient } = await import("../lib/oauth");
     if (!did) return;
     try {
-      const session = await getOAuthClient().restore(did);
+      const client = await getOAuthClient();
+      const session = await client.restore(did);
       await session.signOut();
     } catch {
       // best-effort

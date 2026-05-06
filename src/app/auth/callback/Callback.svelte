@@ -21,7 +21,7 @@
     console.log("[Callback] location.hash:", location.hash);
 
     const { getOAuthClient } = await import("../../../lib/oauth");
-    const client = getOAuthClient();
+    const client = await getOAuthClient();
 
     const params = new URLSearchParams(location.search || location.hash.replace(/^#/, ""));
     console.log("[Callback] params:", Object.fromEntries(params));

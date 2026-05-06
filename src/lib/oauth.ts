@@ -9,7 +9,7 @@ if (location.hostname === "localhost") {
   location.replace(location.href.replace("localhost", "127.0.0.1"));
 }
 
-let _client: BrowserOAuthClient | null = null;
+let _client: Promise<BrowserOAuthClient> | null = null;
 
 const REMOTE_CLIENT_ID = "https://archiving.at/.well-known/oauth-client-metadata.json";
 
@@ -33,20 +33,19 @@ export const WRITE_SCOPE = [
   "transition:com.atproto.repo.uploadBlob",
 ].join(" ");
 
-export function getOAuthClient(): BrowserOAuthClient {
+export function getOAuthClient(): Promise<BrowserOAuthClient> {
   if (_client) return _client;
 
   const configuredClientId = getConfiguredClientId();
-
-  _client = new BrowserOAuthClient({
+  const options = {
     handleResolver:
       (import.meta.env.VITE_HANDLE_RESOLVER as string | undefined) ??
       "https://bsky.social",
-    // Use remote metadata URL when configured; otherwise use loopback defaults for local dev.
-    clientMetadata: configuredClientId
-      ? { client_id: configuredClientId }
-      : undefined,
-  });
+  };
+
+  _client = configuredClientId
+    ? BrowserOAuthClient.load({ clientId: configuredClientId, ...options })
+    : Promise.resolve(new BrowserOAuthClient(options));
 
   return _client;
 }
