@@ -11,10 +11,32 @@ if (location.hostname === "localhost") {
 
 let _client: BrowserOAuthClient | null = null;
 
+const REMOTE_CLIENT_ID = "https://archiving.at/.well-known/oauth-client-metadata.json";
+
+function getConfiguredClientId(): string | undefined {
+  const clientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
+
+  if (clientId) return clientId;
+  if (location.hostname === "archiving.at") return REMOTE_CLIENT_ID;
+
+  return undefined;
+}
+
+export function hasWriteScopeClient(): boolean {
+  return Boolean(getConfiguredClientId());
+}
+
+export const WRITE_SCOPE = [
+  "atproto",
+  "transition:com.atproto.repo.applyWrites",
+  "transition:com.atproto.repo.createRecord",
+  "transition:com.atproto.repo.uploadBlob",
+].join(" ");
+
 export function getOAuthClient(): BrowserOAuthClient {
   if (_client) return _client;
-	// 
-  const configuredClientId = import.meta.env.VITE_CLIENT_ID as string | "https://archiving.at/.well-known/oauth-client-metadata.json";
+
+  const configuredClientId = getConfiguredClientId();
 
   _client = new BrowserOAuthClient({
     handleResolver:
