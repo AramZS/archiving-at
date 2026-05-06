@@ -54,10 +54,7 @@ export function hasWriteScopeClient(): boolean {
   return enabled;
 }
 
-export const WRITE_SCOPE = [
-  "atproto",
-  "repo:test.record.activity?action=create",
-].join(" ");
+export const WRITE_SCOPE = "atproto blob:application/zip blob:application/warc repo:test.record.activity";
 
 export function getOAuthClient(): Promise<BrowserOAuthClient> {
   if (_client) {

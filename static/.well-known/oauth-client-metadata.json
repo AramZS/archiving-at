@@ -6,7 +6,7 @@
 	"redirect_uris": [
 		"https://archiving.at/auth/callback"
 	],
-	"scope": "atproto repo:test.record.activity?action=create",
+	"scope": "atproto blob:application/zip blob:application/warc repo:test.record.activity",
 	"grant_types": [
 		"authorization_code",
 		"refresh_token"
