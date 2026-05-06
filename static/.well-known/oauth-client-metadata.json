@@ -1,0 +1,20 @@
+{
+	"client_id": "https://archiving.at/.well-known/oauth-client-metadata.json",
+	"client_name": "Archiver's ATmosphere",
+	"client_uri": "https://archiving.at",
+	"logo_uri": "https://archiving.at/logo.png",
+	"redirect_uris": [
+		"https://archiving.at/auth/callback"
+	],
+	"scope": "atproto blob:application/zip blob:application/warc repo:test.record.activity repo:test.foo.bar?action=create&action=update rpc:app.bsky.actor.getProfile?aud=did%3Aweb%3Aapi.bsky.app%23bsky_appview",
+	"grant_types": [
+		"authorization_code",
+		"refresh_token"
+	],
+	"response_types": [
+		"code"
+	],
+	"token_endpoint_auth_method": "none",
+	"application_type": "web",
+	"dpop_bound_access_tokens": true
+}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { WRITE_SCOPE, hasWriteScopeClient } from "../../../lib/oauth";
+
   type Props = {
     onSuccess?: (did: string) => void;
   };
@@ -8,17 +10,9 @@
   let handle = $state("");
   let error = $state<string | null>(null);
   let loading = $state(false);
-  const hasCustomClientMetadata = Boolean(import.meta.env.VITE_CLIENT_ID);
 
-  // Request base ATProto access plus explicit write transitions.
-  const oauthScope = hasCustomClientMetadata
-    ? [
-        "atproto",
-        "transition:com.atproto.repo.applyWrites",
-        "transition:com.atproto.repo.createRecord",
-        "transition:com.atproto.repo.uploadBlob",
-      ].join(" ")
-    : "atproto";
+  // Request base ATProto access plus explicit write transitions when the hosted metadata is available.
+  const oauthScope = hasWriteScopeClient() ? WRITE_SCOPE : "atproto";
 
   /**
    * Handles login form submission by starting the OAuth sign-in redirect flow.
@@ -31,8 +25,9 @@
 
     try {
       const { getOAuthClient } = await import("../../../lib/oauth");
+      const client = await getOAuthClient();
       // signIn redirects the browser — promise only rejects on cancel/back
-      await getOAuthClient().signIn(handle.trim(), {
+      await client.signIn(handle.trim(), {
         scope: oauthScope,
       });
     } catch (err) {

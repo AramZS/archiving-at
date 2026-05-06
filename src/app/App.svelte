@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getActivityRecords, type RepoRecord } from "../lib/getBskyData";
   import Login from "./auth/login/Login.svelte";
   import Callback, { type AuthResult } from "./auth/callback/Callback.svelte";
 
@@ -28,6 +29,28 @@
   let displayName = $state<string | null>(null);
   let handle = $state<string | null>(null);
   let avatar = $state<string | null>(null);
+  let activityRecords = $state<RepoRecord[]>([]);
+  let recordsLoading = $state(false);
+  let recordsError = $state<string | null>(null);
+
+  async function loadActivityRecords(currentDid: string) {
+    recordsLoading = true;
+    recordsError = null;
+
+    try {
+      const { getOAuthClient } = await import("../lib/oauth");
+      const client = await getOAuthClient();
+      const session = await client.restore(currentDid);
+      activityRecords = await getActivityRecords(session);
+	  console.log('[App] got activity records', activityRecords)
+    } catch (err) {
+      console.error("[App] failed to load activity records:", err);
+      activityRecords = [];
+      recordsError = err instanceof Error ? err.message : "Failed to load records.";
+    } finally {
+      recordsLoading = false;
+    }
+  }
 
   /**
    * Applies a successful OAuth result to local user state and returns the app to the home route.
@@ -40,6 +63,7 @@
     displayName = result.profile?.displayName ?? null;
     handle = result.profile?.handle ?? null;
     avatar = result.profile?.avatar ?? null;
+    void loadActivityRecords(result.did);
     console.log("[onAuthSuccess] state after set — did:", did, "displayName:", displayName, "handle:", handle);
     navigate("/");
     console.log("[onAuthSuccess] navigated to /, path is now:", path);
@@ -53,7 +77,8 @@
     const { getOAuthClient } = await import("../lib/oauth");
     if (!did) return;
     try {
-      const session = await getOAuthClient().restore(did);
+      const client = await getOAuthClient();
+      const session = await client.restore(did);
       await session.signOut();
     } catch {
       // best-effort
@@ -62,6 +87,9 @@
     displayName = null;
     handle = null;
     avatar = null;
+    activityRecords = [];
+    recordsLoading = false;
+    recordsError = null;
   }
 </script>
 
@@ -82,6 +110,25 @@
         <p class="handle">@{handle}</p>
       {/if}
       <p class="did"><code>{did}</code></p>
+      <div class="list-records">
+        <h2>Activity Records</h2>
+        {#if recordsLoading}
+          <p class="records-status">Loading records...</p>
+        {:else if recordsError}
+          <p class="records-error" role="alert">{recordsError}</p>
+        {:else if activityRecords.length === 0}
+          <p class="records-status">No test.record.activity records found.</p>
+        {:else}
+          <ul>
+            {#each activityRecords as record}
+              <li>
+                <p class="record-uri">{record.uri}</p>
+                <pre>{JSON.stringify(record.value, null, 2)}</pre>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
       <button onclick={signOut}>Sign out</button>
     </div>
   </main>
@@ -137,6 +184,62 @@
     color: #9ca3af;
     font-size: 0.75rem;
     word-break: break-all;
+  }
+
+  .list-records {
+    margin: 0 0 1.5rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    text-align: left;
+  }
+
+  .list-records h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .list-records ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .list-records li {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+
+  .record-uri {
+    margin: 0 0 0.5rem;
+    color: #374151;
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
+  .records-status {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+
+  .records-error {
+    margin: 0;
+    color: #dc2626;
+    font-size: 0.9rem;
+  }
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.75rem;
+    color: #1f2937;
+    font-family: ui-monospace, monospace;
   }
 
   code {

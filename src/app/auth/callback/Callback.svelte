@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
+  import { getUserProfile } from "../../../lib/getBskyData";
 
   export type AuthResult = {
     did: string;
@@ -15,52 +16,22 @@
   let error = $state<string | null>(null);
 
   async function handleCallback() {
-    console.log("[Callback] handleCallback started");
-    console.log("[Callback] location.href:", location.href);
-    console.log("[Callback] location.search:", location.search);
-    console.log("[Callback] location.hash:", location.hash);
-
     const { getOAuthClient } = await import("../../../lib/oauth");
-    const client = getOAuthClient();
+    const client = await getOAuthClient();
 
-    const params = new URLSearchParams(location.search || location.hash.replace(/^#/, ""));
-    console.log("[Callback] params:", Object.fromEntries(params));
+    // init() automatically detects OAuth callback params in the URL,
+    // resolves the matching redirect_uri, and exchanges the code for a session.
+    const result = await client.init();
 
-    const { Agent } = await import("@atproto/api");
-
-    let session;
-    try {
-      console.log("[Callback] trying client.callback()...");
-      const callbackResult = await client.callback(params);
-      console.log("[Callback] client.callback() succeeded:", callbackResult);
-      session = callbackResult.session;
-    } catch (err) {
-      console.warn("[Callback] client.callback() failed:", err);
-      console.log("[Callback] falling back to client.init()...");
-      const initResult = await client.init();
-      console.log("[Callback] client.init() result:", initResult);
-      if (!initResult?.session) {
-        error = "Authentication completed but no session was returned.";
-        return;
-      }
-      session = initResult.session;
+    if (!result?.session) {
+      error = "Authentication completed but no session was returned.";
+      return;
     }
 
-    console.log("[Callback] session:", session);
+    const { session } = result;
+    const profile = await getUserProfile(session);
 
-    const agent = new Agent(session);
-    let profile: ProfileViewDetailed | null = null;
-    try {
-      const res = await agent.getProfile({ actor: session.sub });
-      profile = res.data;
-      console.log("[Callback] profile:", profile);
-    } catch (err) {
-      console.warn("[Callback] profile fetch failed:", err);
-    }
-
-    console.log("[Callback] calling onSuccess...");
     onSuccess({ did: session.sub, profile });
-    console.log("[Callback] onSuccess called");
   }
 
   handleCallback().catch((err: unknown) => {
