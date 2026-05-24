@@ -1,0 +1,90 @@
+{
+	"id": "at.archiving.session",
+	"lexicon": 1,
+	"defs": {
+		"main": {
+			"description": "A document record representing an archiving session recorded as a WARC or WARCZ.",
+			"key": "tid",
+			"record": {
+				"properties": {
+					"bskyPostRef": {
+						"description": "Strong reference to a Bluesky post. Useful to keep track of comments off-platform. Optional.",
+						"ref": "com.atproto.repo.strongRef",
+						"type": "ref"
+					},
+					"coverImage": {
+						"accept": [
+							"image/*"
+						],
+						"description": "Image to used for thumbnail or cover image. Less than 1MB is size.",
+						"maxSize": 1000000,
+						"type": "blob"
+					},
+					"archiveFile": {
+						"accept": [
+							"application/warc",
+							"application/warc+gzip",
+							"application/wacz"
+						],
+						"description": "Blob that stores the warc or wacz archive on your PDS. Less than 50MB in size.",
+						"maxSize": 52428800,
+						"type": "blob"
+					},
+					"description": {
+						"description": "A brief description or excerpt from the archive.",
+						"maxGraphemes": 3000,
+						"maxLength": 30000,
+						"type": "string"
+					},
+					"links": {
+						"description": "Array of values describing relationships between this document and external resources",
+						"refs": [],
+						"type": "union"
+					},
+					"archiveDateCreatedAt": {
+						"description": "Timestamp of the when the archive was created by accessing the original resources.",
+						"format": "datetime",
+						"type": "string"
+					},
+					"sameAs": {
+						"description": "Points to the records (at://) or published web page urls (https://) that represent the original documents that this archive covers. Avoid trailing slashes.",
+						"items": {
+							"maxGraphemes": 128,
+							"maxLength": 1280,
+							"format": "uri",
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"tags": {
+						"description": "Array of strings used to tag or categorize the archive. Avoid prepending tags with hashtags.",
+						"items": {
+							"maxGraphemes": 128,
+							"maxLength": 1280,
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"title": {
+						"description": "Title of the archive.",
+						"maxGraphemes": 500,
+						"maxLength": 5000,
+						"type": "string"
+					},
+					"uploadedAt": {
+						"description": "Timestamp of the original upload",
+						"format": "datetime",
+						"type": "string"
+					}
+				},
+				"required": [
+					"site",
+					"title",
+					"publishedAt"
+				],
+				"type": "object"
+			},
+			"type": "record"
+		}
+	}
+}
