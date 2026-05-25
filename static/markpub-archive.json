@@ -1,0 +1,24 @@
+{
+	"$type": "at.archiving.session",
+	"archiveFile": {
+		"$type": "blob",
+		"ref": {
+			"$link": "bafkreidzuafvc4jctjvmsgls7rm6ugskdpv3i45ag46ynr3p52tdhc24e4"
+		},
+		"mimeType": "application/zip",
+		"size": 1564464
+	},
+	"description": "Homepage for ATProto Lexicon for Markdown",
+	"sameAs": [
+		"https://markpub.at"
+	],
+	"tags": [
+		"ATmosphere",
+		"ATProto",
+		"Decentralization",
+		"Code"
+	],
+	"title": "Markpub.at - Markdown for the ATmosphere lexicon homepage",
+	"uploadedAt": "2026-05-24T21:30:00.000Z",
+	"archiveDateCreatedAt": "2026-05-24T21:00:00.000Z"
+}

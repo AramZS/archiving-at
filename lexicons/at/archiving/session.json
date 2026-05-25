@@ -24,7 +24,8 @@
 						"accept": [
 							"application/warc",
 							"application/warc+gzip",
-							"application/wacz"
+							"application/wacz",
+							"application/zip"
 						],
 						"description": "Blob that stores the warc or wacz archive on your PDS. Less than 50MB in size.",
 						"maxSize": 52428800,
@@ -47,7 +48,7 @@
 						"type": "string"
 					},
 					"sameAs": {
-						"description": "Points to the records (at://) or published web page urls (https://) that represent the original documents that this archive covers. Avoid trailing slashes.",
+						"description": "Points to the records (at://) or published web page urls (https://) that represent the original documents that this archive covers. Avoid trailing slashes. An archive may be multiple files or just one.",
 						"items": {
 							"maxGraphemes": 128,
 							"maxLength": 1280,
@@ -75,12 +76,22 @@
 						"description": "Timestamp of the original upload",
 						"format": "datetime",
 						"type": "string"
+					},
+					"additionalMetadata": {
+						"description": "Place additional metadata objects dealing with the archival object here.",
+						"type": "array",
+						"items": {
+							"type": "union",
+							"closed": false,
+							"refs": []
+						}
 					}
 				},
 				"required": [
-					"site",
+					"archiveDateCreatedAt",
 					"title",
-					"publishedAt"
+					"sameAs",
+					"archiveFile"
 				],
 				"type": "object"
 			},
