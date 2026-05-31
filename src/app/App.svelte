@@ -4,6 +4,7 @@
   import Callback, { type AuthResult } from "./auth/callback/Callback.svelte";
   import UploadView from './upload/UploadView.svelte';
   import type { OAuthSession } from '@atproto/oauth-client-browser';
+  import { readSession, writeSession, clearSession } from '../lib/sessionStore';
 
   let path = $state(location.pathname);
   // True when the current page load looks like an OAuth callback response
@@ -35,6 +36,44 @@
   let activityRecords = $state<RepoRecord[]>([]);
   let recordsLoading = $state(false);
   let recordsError = $state<string | null>(null);
+  let restoring = $state(false);
+
+  async function initSession() {
+    const storedData = readSession();
+    if (!storedData) {
+      // No stored DID — show login page immediately
+      return;
+    }
+
+    restoring = true;
+    try {
+      const { getOAuthClient } = await import("../lib/oauth");
+      const client = await getOAuthClient();
+      const restoredSession = await client.restore(storedData.did);
+      did = storedData.did;
+      displayName = storedData.displayName;
+      handle = storedData.handle;
+      avatar = storedData.avatar;
+      session = restoredSession;
+      restoring = false;
+      void loadActivityRecords(storedData.did);
+    } catch (err) {
+      console.error("[App] failed to restore session:", err);
+      clearSession();
+      did = null;
+      displayName = null;
+      handle = null;
+      avatar = null;
+      session = null;
+      restoring = false;
+    }
+  }
+
+  $effect(() => {
+    if (!isCallback) {
+      void initSession();
+    }
+  });
 
   async function loadActivityRecords(currentDid: string) {
     recordsLoading = true;
@@ -66,6 +105,12 @@
     displayName = result.profile?.displayName ?? null;
     handle = result.profile?.handle ?? null;
     avatar = result.profile?.avatar ?? null;
+    writeSession({
+      did: result.did,
+      displayName: result.profile?.displayName ?? null,
+      handle: result.profile?.handle ?? null,
+      avatar: result.profile?.avatar ?? null,
+    });
     void loadActivityRecords(result.did);
     console.log("[onAuthSuccess] state after set — did:", did, "displayName:", displayName, "handle:", handle);
     navigate("/");
@@ -79,6 +124,11 @@
   async function signOut() {
     const { getOAuthClient } = await import("../lib/oauth");
     if (!did) return;
+    try {
+      clearSession();
+    } catch (err) {
+      console.error("[App] clearSession failed during sign-out:", err);
+    }
     try {
       const client = await getOAuthClient();
       const session = await client.restore(did);
@@ -103,6 +153,8 @@
 
 {#if isCallback}
   <Callback onSuccess={onAuthSuccess} />
+{:else if restoring}
+  <main class="center"><div class="card"><p>Restoring session…</p></div></main>
 {:else if did && path === '/upload'}
   <UploadView {session} {navigate} />
 {:else if did}
