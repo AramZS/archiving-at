@@ -27,7 +27,7 @@ export async function getUserProfile(session: OAuthSession): Promise<ProfileView
 }
 
 /**
- * Lists all test.record.activity records from the authenticated user's repo.
+ * Lists all at.archiving.session records from the authenticated user's repo.
  *
  * @param session - OAuth session obtained from the OAuth client
  * @returns Repo records from the user's PDS, or an empty list if the fetch fails
@@ -38,7 +38,7 @@ export async function getActivityRecords(session: OAuthSession): Promise<RepoRec
     const repo = agent.accountDid ?? session.sub
     const response = await agent.com.atproto.repo.listRecords({
       repo,
-      collection: 'test.record.activity',
+      collection: 'at.archiving.session',
       limit: 100,
     })
 
