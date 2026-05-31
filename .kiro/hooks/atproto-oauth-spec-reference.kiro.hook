@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "ATProto OAuth Spec Reference",
+  "description": "When editing OAuth-related files, reminds Kiro to reference the ATProto OAuth specification at atproto.com/specs/oauth for accurate implementation",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*oauth*",
+      "*auth*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are editing an OAuth-related file in an ATProto project. Reference the ATProto OAuth specification at https://atproto.com/specs/oauth to ensure the implementation is accurate and compliant. Use the web fetch tool to look up relevant sections as needed."
+  }
+}

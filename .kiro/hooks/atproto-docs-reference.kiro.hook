@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "ATProto Docs Reference",
+  "description": "Before each agent task, reminds Kiro to reference the ATProto documentation at atproto.com for accurate protocol implementation guidance",
+  "version": "1",
+  "when": {
+    "type": "preTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Before proceeding with this task, reference the ATProto documentation at https://atproto.com/docs to ensure any ATProto protocol details, lexicons, OAuth flows, or API usage are accurate and up to date. Use the web fetch tool to look up relevant sections as needed."
+  }
+}
