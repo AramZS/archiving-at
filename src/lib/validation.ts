@@ -18,7 +18,7 @@ export function countGraphemes(str: string): number {
 }
 
 /**
- * Returns true iff the string starts with `at://` or `https://`
+ * Returns true if the string starts with `at://` or `https://`
  * and has non-empty content after the scheme.
  */
 export function isValidSameAsUri(uri: string): boolean {
@@ -32,7 +32,7 @@ export function isValidSameAsUri(uri: string): boolean {
 }
 
 /**
- * Returns true iff the string matches `at://<authority>/<collection>/<rkey>`
+ * Returns true if the string matches `at://<authority>/<collection>/<rkey>`
  * with all three path components non-empty.
  */
 export function isValidAtUri(uri: string): boolean {
