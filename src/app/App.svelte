@@ -2,6 +2,8 @@
   import { getActivityRecords, type RepoRecord } from "../lib/getBskyData";
   import Login from "./auth/login/Login.svelte";
   import Callback, { type AuthResult } from "./auth/callback/Callback.svelte";
+  import UploadView from './upload/UploadView.svelte';
+  import type { OAuthSession } from '@atproto/oauth-client-browser';
 
   let path = $state(location.pathname);
   // True when the current page load looks like an OAuth callback response
@@ -29,6 +31,7 @@
   let displayName = $state<string | null>(null);
   let handle = $state<string | null>(null);
   let avatar = $state<string | null>(null);
+  let session = $state<OAuthSession | null>(null);
   let activityRecords = $state<RepoRecord[]>([]);
   let recordsLoading = $state(false);
   let recordsError = $state<string | null>(null);
@@ -40,7 +43,7 @@
     try {
       const { getOAuthClient } = await import("../lib/oauth");
       const client = await getOAuthClient();
-      const session = await client.restore(currentDid);
+      session = await client.restore(currentDid);
       activityRecords = await getActivityRecords(session);
 	  console.log('[App] got activity records', activityRecords)
     } catch (err) {
@@ -88,6 +91,7 @@
     handle = null;
     avatar = null;
     activityRecords = [];
+    session = null;
     recordsLoading = false;
     recordsError = null;
   }
@@ -99,6 +103,8 @@
 
 {#if isCallback}
   <Callback onSuccess={onAuthSuccess} />
+{:else if did && path === '/upload'}
+  <UploadView {session} {navigate} />
 {:else if did}
   <main class="center">
     <div class="card">
@@ -117,7 +123,7 @@
         {:else if recordsError}
           <p class="records-error" role="alert">{recordsError}</p>
         {:else if activityRecords.length === 0}
-          <p class="records-status">No test.record.activity records found.</p>
+          <p class="records-status">No at.archiving.session records found.</p>
         {:else}
           <ul>
             {#each activityRecords as record}
@@ -129,6 +135,7 @@
           </ul>
         {/if}
       </div>
+      <button onclick={() => navigate('/upload')}>Upload Archive Session</button>
       <button onclick={signOut}>Sign out</button>
     </div>
   </main>
