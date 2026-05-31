@@ -127,14 +127,14 @@ Implement the upload-archive-session feature in the Archiver's ATmosphere SPA. T
   - Render `<UploadForm {session} {navigate} />` when `session` is non-null
   - _Requirements: 2.1, 2.2_
 
-- [ ] 6. Integrate into `App.svelte`
+- [x] 6. Integrate into `App.svelte`
   - Refactor `App.svelte` to store the restored `OAuthSession` in a `$state` variable (e.g., `let session = $state<OAuthSession | null>(null)`) so it can be passed to `UploadView`; update `loadActivityRecords` to set this variable after calling `client.restore(did)`
   - Import `UploadView` from `./upload/UploadView.svelte`
   - Add an `"Upload Archive Session"` button in the authenticated home view that calls `navigate('/upload')`; place it alongside the existing "Sign out" button
   - Add a route branch in the template: `{:else if path === '/upload'}` renders `<UploadView {session} {navigate} />`
   - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4_
 
-- [~] 7. Final checkpoint — ensure all tests pass
+- [x] 7. Final checkpoint — ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
