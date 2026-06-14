@@ -194,6 +194,10 @@
           </ul>
         {/if}
       </div>
+      <div>
+        <a href="https://webrecorder.net/archivewebpage/" target="_blank">Create WACZ Archives using Web Recorder</a>
+        <br /><br />
+      </div>
       <button onclick={() => navigate('/upload')}>Upload Archive Session</button>
       <button onclick={signOut}>Sign out</button>
     </div>
