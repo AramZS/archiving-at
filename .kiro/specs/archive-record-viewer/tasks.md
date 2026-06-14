@@ -6,7 +6,7 @@ Implement a public `/view/<rkey>?did=<did>` route that fetches an `at.archiving.
 
 ## Tasks
 
-- [ ] 1. Create `src/lib/archiveRecord.ts` with types and pure helper functions
+- [x] 1. Create `src/lib/archiveRecord.ts` with types and pure helper functions
   - Define `ParsedAtUri`, `ArchiveRecordValue`, `FetchedRecord`, and `FetchRecordResult` TypeScript interfaces/types
   - Implement `parseAtUri(uri: string): ParsedAtUri | null` — splits an `at://` URI into `{ did, collection, rkey }`, returns `null` for any malformed input
   - Implement `buildBlobUrl(pdsHost: string, did: string, cid: string): string` — constructs the `com.atproto.sync.getBlob` HTTPS URL, stripping trailing slashes from `pdsHost` and percent-encoding `did` and `cid`
@@ -28,7 +28,7 @@ Implement a public `/view/<rkey>?did=<did>` route that fetches an `at.archiving.
     - For any `string[]`, the result is the first element satisfying `isValidSameAsUri`, or `null` if none exists
     - **Validates: Requirements 5.1**
 
-- [ ] 2. Add `resolvePdsHost` and `fetchRecord` to `src/lib/archiveRecord.ts`
+- [x] 2. Add `resolvePdsHost` and `fetchRecord` to `src/lib/archiveRecord.ts`
   - Implement `resolvePdsHost(did: string): Promise<string>` — fetches DID document from `https://plc.directory/<did>` (did:plc) or `https://<hostname>/.well-known/did.json` (did:web), extracts `AtprotoPersonalDataServer` service endpoint; throws descriptive errors for HTTP failures and missing service
   - Implement `fetchRecord(did: string, rkey: string): Promise<FetchRecordResult>` — calls `resolvePdsHost`, then `com.atproto.repo.getRecord`, returns a discriminated union `{ status: 'success', record, pdsHost }` or `{ status: 'error', message }`; validates that `archiveFile.ref.$link` is non-empty before returning success
   - Map all error scenarios from the design's error-handling table to their exact error messages
@@ -47,10 +47,10 @@ Implement a public `/view/<rkey>?did=<did>` route that fetches an `at.archiving.
     - Test `resolveOriginalUrl`: first valid entry returned; null for empty; null for all-invalid; `at://` accepted; `http://` rejected
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1, 4.3_
 
-- [ ] 3. Checkpoint — Ensure all `archiveRecord.ts` tests pass
+- [x] 3. Checkpoint — Ensure all `archiveRecord.ts` tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Create `src/app/view/RecordViewer.svelte`
+- [x] 4. Create `src/app/view/RecordViewer.svelte`
   - Add `Props` interface with `navigate: (to: string) => void`
   - Declare reactive state: `status` (`'loading' | 'success' | 'error'`), `record`, `pdsHost`, `errorMessage`, `replayError`, `replayLoaded`
   - In `onMount`: parse `rkey` from `location.pathname` and `did` from `URLSearchParams`; if either is missing set `status = 'error'` with the required message; otherwise call `fetchRecord(did, rkey)` and update state
@@ -70,7 +70,7 @@ Implement a public `/view/<rkey>?did=<did>` route that fetches an `at.archiving.
     - Mock `fetchRecord` via `vi.stubGlobal('fetch', ...)` — no real network calls
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 5. Update `src/app/App.svelte` — routing and record link rendering
+- [x] 5. Update `src/app/App.svelte` — routing and record link rendering
   - Import `RecordViewer` from `'./view/RecordViewer.svelte'`
   - Import `parseAtUri` from `'../lib/archiveRecord'`
   - Insert the `{:else if path.startsWith('/view/')}` route branch before `{:else if did}` so the viewer is accessible without authentication
@@ -85,7 +85,7 @@ Implement a public `/view/<rkey>?did=<did>` route that fetches an `at.archiving.
     - Test: record with un-parseable AT-URI renders a `<p>` with the raw URI
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.1, 2.2_
 
-- [ ] 6. Final checkpoint — Ensure all tests pass
+- [x] 6. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
