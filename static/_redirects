@@ -1,1 +1,2 @@
+/view/replay/*  /view/replay/:splat  200
 /*  /index.html  200

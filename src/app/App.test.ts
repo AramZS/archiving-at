@@ -402,3 +402,109 @@ describe('signOut — session clearing', () => {
     expect(state.displayName).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Routing and record link logic tests (Task 5.1)
+// ---------------------------------------------------------------------------
+
+import { parseAtUri } from '../lib/archiveRecord';
+
+describe('path.startsWith routing logic', () => {
+  it('matches /view/abc123', () => {
+    expect('/view/abc123'.startsWith('/view/')).toBe(true);
+  });
+
+  it('matches /view/3abc123xyz', () => {
+    expect('/view/3abc123xyz'.startsWith('/view/')).toBe(true);
+  });
+
+  it('does not match /upload', () => {
+    expect('/upload'.startsWith('/view/')).toBe(false);
+  });
+
+  it('does not match /', () => {
+    expect('/'.startsWith('/view/')).toBe(false);
+  });
+
+  it('does not match /auth/callback', () => {
+    expect('/auth/callback'.startsWith('/view/')).toBe(false);
+  });
+
+  it('does not match /viewer/abc — the trailing slash in /view/ prevents false positive', () => {
+    // /viewer/abc does NOT start with /view/ because the required trailing slash differs
+    expect('/viewer/abc'.startsWith('/view/')).toBe(false);
+    // /view/ itself does match
+    expect('/view/'.startsWith('/view/')).toBe(true);
+  });
+});
+
+describe('parseAtUri — routing behaviour', () => {
+  it('returns non-null for a valid AT-URI', () => {
+    const result = parseAtUri('at://did:plc:abc123/at.archiving.session/3rk1abc');
+    expect(result).not.toBeNull();
+    expect(result?.did).toBe('did:plc:abc123');
+    expect(result?.rkey).toBe('3rk1abc');
+  });
+
+  it('returns non-null preserving all three components', () => {
+    const result = parseAtUri('at://did:plc:xyz/at.archiving.session/mykey');
+    expect(result?.did).toBe('did:plc:xyz');
+    expect(result?.collection).toBe('at.archiving.session');
+    expect(result?.rkey).toBe('mykey');
+  });
+
+  it('returns null for a malformed URI missing at:// scheme', () => {
+    expect(parseAtUri('did:plc:abc123/at.archiving.session/rkey')).toBeNull();
+  });
+
+  it('returns null for an empty string', () => {
+    expect(parseAtUri('')).toBeNull();
+  });
+
+  it('returns null for a URI with too few path components', () => {
+    expect(parseAtUri('at://did:plc:abc123/at.archiving.session')).toBeNull();
+  });
+
+  it('returns null for a URI with empty rkey component', () => {
+    expect(parseAtUri('at://did:plc:abc123/at.archiving.session/')).toBeNull();
+  });
+});
+
+describe('view path construction', () => {
+  it('constructs the correct /view/<rkey>?did=<did> URL from a parsed AT-URI', () => {
+    const parsed = parseAtUri('at://did:plc:abc123/at.archiving.session/3rk1abc');
+    expect(parsed).not.toBeNull();
+    const url = `/view/${parsed!.rkey}?did=${parsed!.did}`;
+    expect(url).toBe('/view/3rk1abc?did=did:plc:abc123');
+  });
+
+  it('includes rkey as the path segment and did as query param', () => {
+    const parsed = parseAtUri('at://did:plc:zzz999/at.archiving.session/myarchive');
+    const url = `/view/${parsed!.rkey}?did=${parsed!.did}`;
+    expect(url.startsWith('/view/')).toBe(true);
+    expect(url).toContain('?did=did:plc:zzz999');
+    expect(url).toContain('/myarchive');
+  });
+});
+
+describe('title fallback logic', () => {
+  it('uses record.value.title when present', () => {
+    const value: Record<string, unknown> = { title: 'My Archive' };
+    const display = String(value?.title ?? 'at://did:plc:abc/at.archiving.session/rkey');
+    expect(display).toBe('My Archive');
+  });
+
+  it('falls back to the URI when title is absent', () => {
+    const uri = 'at://did:plc:abc123/at.archiving.session/3rk1abc';
+    const value: Record<string, unknown> = {};
+    const display = String(value?.title ?? uri);
+    expect(display).toBe(uri);
+  });
+
+  it('falls back to the URI when title is undefined', () => {
+    const uri = 'at://did:plc:abc123/at.archiving.session/rkey';
+    const value: Record<string, unknown> = { title: undefined };
+    const display = String(value?.title ?? uri);
+    expect(display).toBe(uri);
+  });
+});

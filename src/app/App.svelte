@@ -3,8 +3,10 @@
   import Login from "./auth/login/Login.svelte";
   import Callback, { type AuthResult } from "./auth/callback/Callback.svelte";
   import UploadView from './upload/UploadView.svelte';
+  import RecordViewer from './view/RecordViewer.svelte';
   import type { OAuthSession } from '@atproto/oauth-client-browser';
   import { readSession, writeSession, clearSession } from '../lib/sessionStore';
+  import { parseAtUri } from '../lib/archiveRecord';
 
   let path = $state(location.pathname);
   // True when the current page load looks like an OAuth callback response
@@ -164,6 +166,8 @@
   <main class="center"><div class="card"><p>Restoring session…</p></div></main>
 {:else if did && path === '/upload'}
   <UploadView {session} {navigate} />
+{:else if path.startsWith('/view/') && !path.startsWith('/view/replay/')}
+  <RecordViewer {navigate} />
 {:else if did}
   <main class="center">
     <div class="card">
@@ -186,9 +190,26 @@
         {:else}
           <ul>
             {#each activityRecords as record}
+              {@const parsed = parseAtUri(record.uri)}
               <li>
-                <p class="record-uri">{record.uri}</p>
-                <pre>{JSON.stringify(record.value, null, 2)}</pre>
+                {#if parsed}
+                  <a
+                    href="/view/{parsed.rkey}?did={parsed.did}"
+                    class="record-link"
+                    onclick={(e) => {
+                      e.preventDefault();
+                      try {
+                        navigate(`/view/${parsed.rkey}?did=${parsed.did}`);
+                      } catch {
+                        window.location.href = `/view/${parsed.rkey}?did=${parsed.did}`;
+                      }
+                    }}
+                  >
+                    {String((record.value as Record<string, unknown>)?.title ?? record.uri)}
+                  </a>
+                {:else}
+                  <p class="record-uri">{record.uri}</p>
+                {/if}
               </li>
             {/each}
           </ul>
@@ -328,4 +349,17 @@
   }
 
   button:hover { background: #f9fafb; }
+
+  .record-link {
+    display: block;
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 0.85rem;
+    word-break: break-all;
+    padding: 0.25rem 0;
+  }
+
+  .record-link:hover {
+    text-decoration: underline;
+  }
 </style>
