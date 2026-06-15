@@ -8,7 +8,7 @@
   import { readSession, writeSession, clearSession } from '../lib/sessionStore';
   import { parseAtUri } from '../lib/archiveRecord';
 
-  let path = $state(location.pathname);
+  let path = $state(location.pathname + location.search);
   // True when the current page load looks like an OAuth callback response
   let isCallback = $state(
     location.pathname.startsWith("/auth/callback") ||
@@ -27,7 +27,7 @@
   }
 
   window.addEventListener("popstate", () => {
-    path = location.pathname;
+    path = location.pathname + location.search;
   });
 
   let did = $state<string | null>(null);
@@ -39,6 +39,17 @@
   let recordsLoading = $state(false);
   let recordsError = $state<string | null>(null);
   let restoring = $state(false);
+
+  // Viewer route params — derived from `path` so they stay correct for both
+  // direct URL hits and in-app navigation via navigate().
+  let viewerRkey = $derived((() => {
+    const pathOnly = path.split('?')[0];
+    const parts = pathOnly.split('/');
+    return parts[parts.length - 1] || null;
+  })());
+  let viewerDid = $derived(
+    new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?')) : '').get('did')
+  );
 
   async function initSession() {
     const storedData = readSession();
@@ -157,6 +168,23 @@
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
     </script>
+    <script>
+        if (typeof window.Replay === 'undefined') {
+            // Create a new script element
+            const script = document.createElement('script');
+            
+            // Set the source to your ui.js file
+            script.src = '/replay/ui.js';
+            script["data-external-src"]="https://cdn.jsdelivr.net/npm/replaywebpage@2.4.0/ui.js"
+            
+            script.defer = true; 
+            
+            // Append the script to the <head> (or <body>) of the document
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <!--<script data-external-src="https://cdn.jsdelivr.net/npm/replaywebpage@2.4.0/ui.js" src="/scripts/replaywebpage.ui.js" defer></script>-->
 
 </svelte:head>
 
@@ -167,7 +195,7 @@
 {:else if did && path === '/upload'}
   <UploadView {session} {navigate} />
 {:else if path.startsWith('/view/') && !path.startsWith('/view/replay/')}
-  <RecordViewer {navigate} />
+  <RecordViewer {navigate} rkey={viewerRkey} did={viewerDid} />
 {:else if did}
   <main class="center">
     <div class="card">

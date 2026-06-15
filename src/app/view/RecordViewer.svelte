@@ -28,8 +28,12 @@
   // ---------------------------------------------------------------------------
   interface Props {
     navigate: (to: string) => void;
+    /** rkey passed from App router (in-app navigation). Falls back to location if absent. */
+    rkey?: string | null;
+    /** did passed from App router (in-app navigation). Falls back to location if absent. */
+    did?: string | null;
   }
-  let { navigate }: Props = $props();
+  let { navigate, rkey: rkeyProp = null, did: didProp = null }: Props = $props();
 
   // ---------------------------------------------------------------------------
   // State
@@ -42,7 +46,7 @@
   let replayLoaded = $state(false);
   let replayEl = $state<Element | null>(null);
 
-  // URL params — set in onMount
+  // Resolved URL params — props take priority (in-app nav), location as fallback (direct hit)
   let did = $state<string | null>(null);
   let rkey = $state<string | null>(null);
 
@@ -62,13 +66,14 @@
   );
 
   // ---------------------------------------------------------------------------
-  // Mount: parse URL params and fetch record
+  // Mount: resolve URL params and fetch record
   // ---------------------------------------------------------------------------
   onMount(async () => {
-    // Parse rkey from pathname: /view/<rkey>
+    // Props (set by App router for in-app navigation) take priority.
+    // Fall back to location for direct URL hits.
     const pathParts = location.pathname.split('/');
-    rkey = pathParts[pathParts.length - 1] || null;
-    did = new URLSearchParams(location.search).get('did');
+    rkey = rkeyProp || pathParts[pathParts.length - 1] || null;
+    did = didProp || new URLSearchParams(location.search).get('did');
 
     if (!did || !rkey) {
       status = 'error';
@@ -125,7 +130,7 @@
 
 <svelte:head>
   <!-- ReplayWeb.page registers the <replay-web-page> custom element -->
-  <script data-external-src="https://cdn.jsdelivr.net/npm/replaywebpage@2.4.0/ui.js" src="/scripts/replaywebpage.ui.js"></script>
+  
 </svelte:head>
 
 <div class="viewer-layout">
@@ -168,6 +173,7 @@
         source={blobUrl}
         url={original}
         class="replay-embed"
+        embed="replay-with-info"
       ></replay-web-page>
     {/if}
   {/if}
