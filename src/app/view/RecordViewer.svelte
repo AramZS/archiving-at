@@ -178,7 +178,7 @@
           {#if authorDisplayName}<span class="author-name">{authorDisplayName}</span>{/if}
           {#if authorDisplayName && authorHandle}<span class="separator"> | </span>{/if}
           {#if authorHandle}<span class="author-handle"><a href="https://bsky.app/profile/{authorHandle}" target="_blank">@{authorHandle}</a></span>{/if}
-          {#if did}<span class="separator"> | </span><span class="did-link"><a href="https://pdsls.dev/at://{did}/at.archiving.session" target="_blank">User's archives on PDSL</a></span>{/if}
+          {#if did}<span class="separator"> | </span><span class="did-link"><a href="https://pdsls.dev/at://{did}/at.archiving.session" target="_blank">User's archives on PDSls</a></span>{/if}
         </p>
       {/if}
     </div>
