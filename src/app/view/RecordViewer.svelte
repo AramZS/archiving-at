@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import {
     fetchRecord,
+    fetchPublicProfile,
     buildBlobUrl,
     resolveOriginalUrl,
     type FetchedRecord,
@@ -45,6 +46,8 @@
   let replayError = $state<string | null>(null);
   let replayLoaded = $state(false);
   let replayEl = $state<Element | null>(null);
+  let authorDisplayName = $state<string | null>(null);
+  let authorHandle = $state<string | null>(null);
 
   // Resolved URL params — props take priority (in-app nav), location as fallback (direct hit)
   let did = $state<string | null>(null);
@@ -81,13 +84,18 @@
       return;
     }
 
-    const result = await fetchRecord(did, rkey);
+    const [result, profile] = await Promise.all([
+      fetchRecord(did, rkey),
+      fetchPublicProfile(did),
+    ]);
     if (result.status === 'error') {
       status = 'error';
       errorMessage = result.message;
     } else {
       record = result.record;
       pdsHost = result.pdsHost;
+      authorDisplayName = profile?.displayName ?? null;
+      authorHandle = profile?.handle ?? null;
       status = 'success';
     }
   });
@@ -162,6 +170,16 @@
         </p>
       {:else}
         <p class="no-original">Original URL not available.</p>
+      {/if}
+      <hr />
+      {#if authorDisplayName || authorHandle}
+        <p class="author">
+          <span>Archived by: </span>
+          {#if authorDisplayName}<span class="author-name">{authorDisplayName}</span>{/if}
+          {#if authorDisplayName && authorHandle}<span class="separator"> | </span>{/if}
+          {#if authorHandle}<span class="author-handle"><a href="https://bsky.app/profile/{authorHandle}" target="_blank">@{authorHandle}</a></span>{/if}
+          {#if did}<span class="separator"> | </span><span class="did-link"><a href="https://pdsls.dev/at://{did}/at.archiving.session" target="_blank">User's archives on PDSL</a></span>{/if}
+        </p>
       {/if}
     </div>
 
@@ -238,6 +256,25 @@
     margin: 0 0 0.5rem;
     font-size: 1.5rem;
     color: #1f2937;
+  }
+
+  .author {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  p.author span {
+    font-size: 0.9rem;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .author-handle {
+    font-size: 0.85rem;
+    color: #6b7280;
   }
 
   .description {

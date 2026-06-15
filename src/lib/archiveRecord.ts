@@ -121,9 +121,25 @@ export async function resolvePdsHost(did: string): Promise<string> {
 }
 
 /**
- * Fetch a single at.archiving.session record without auth.
- * Returns a discriminated-union result — never throws.
+ * Fetch a user's public profile (displayName + handle) from the Bluesky AppView.
+ * No auth required. Returns null silently on any failure.
  */
+export async function fetchPublicProfile(
+  did: string
+): Promise<{ displayName: string | null; handle: string | null } | null> {
+  try {
+    const url = `https://api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return {
+      displayName: (data.displayName as string | undefined) ?? null,
+      handle: (data.handle as string | undefined) ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
 export async function fetchRecord(did: string, rkey: string): Promise<FetchRecordResult> {
   let pdsHost: string;
   try {
