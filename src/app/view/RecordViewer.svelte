@@ -113,7 +113,8 @@
 
     timer = setTimeout(() => {
       if (!replayLoaded) {
-        replayError = 'Archive viewer timed out after 30 seconds.';
+        //replayError = 'Archive viewer timed out after 30 seconds.';
+        // This is not detecting the archive active or not. 
       }
     }, 30_000);
 

@@ -72,7 +72,7 @@
       void loadActivityRecords(storedData.did);
     } catch (err) {
       console.error("[App] failed to restore session:", err);
-      clearSession();
+      clearSession(); // Should we really clear the session here? 
       did = null;
       displayName = null;
       handle = null;
