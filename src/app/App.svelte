@@ -208,7 +208,7 @@
       {/if}
       <p class="did"><code>{did}</code></p>
       <div class="list-records">
-        <h2>Activity Records</h2>
+        <h2>Web Archives</h2>
         {#if recordsLoading}
           <p class="records-status">Loading records...</p>
         {:else if recordsError}
